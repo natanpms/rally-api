@@ -59,4 +59,12 @@ class AuthService
     {
         return $user->createToken(self::TOKEN_NAME)->plainTextToken;
     }
+
+    /**
+     * Revoga todos os tokens de acesso do usuário, assim fazendo logout de todas as sessões.
+     */
+    public function logout(User $user): void
+    {
+        $user->tokens()->delete();
+    }
 }
