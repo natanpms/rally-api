@@ -35,13 +35,7 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
-        env_file:
-            - .env
-        environment:
-            # `php artisan serve` only forwards a fixed allowlist of variables to the
-            # PHP worker process (ServeCommand::$passthroughVariables), so database
-            # settings must live in `.env` rather than being overridden here.
-            APP_URL: http://localhost:${APP_PORT:-8000}
+
         ports:
             - '${APP_PORT:-8000}:8000'
         volumes:
