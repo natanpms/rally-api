@@ -1,0 +1,58 @@
+name: rally-api
+
+services:
+    postgres:
+        image: postgres:18-alpine
+        container_name: rally-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:-rally_api}
+            POSTGRES_USER: ${DB_USERNAME:-rally}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+        ports:
+            # Published on the host so local tooling (psql, TablePlus, host artisan)
+            # can connect. Defaults to 5433 to avoid a host PostgreSQL on 5432.
+            - '${FORWARD_DB_PORT:-5433}:5432'
+        volumes:
+            - postgres-data:/var/lib/postgresql
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - pg_isready --username=${DB_USERNAME:-rally} --dbname=${DB_DATABASE:-rally_api}
+            interval: 5s
+            timeout: 5s
+            retries: 12
+            start_period: 10s
+        networks:
+            - rally
+
+    api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: rally-api-app
+        restart: unless-stopped
+        depends_on:
+            postgres:
+                condition: service_healthy
+        env_file:
+            - .env
+        environment:
+            # `php artisan serve` only forwards a fixed allowlist of variables to the
+            # PHP worker process (ServeCommand::$passthroughVariables), so database
+            # settings must live in `.env` rather than being overridden here.
+            APP_URL: http://localhost:${APP_PORT:-8000}
+        ports:
+            - '${APP_PORT:-8000}:8000'
+        volumes:
+            - .:/var/www/html
+        networks:
+            - rally
+
+volumes:
+    postgres-data:
+        driver: local
+
+networks:
+    rally:
+        driver: bridge
