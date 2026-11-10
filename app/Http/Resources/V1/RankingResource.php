@@ -2,9 +2,13 @@
 
 namespace App\Http\Resources\V1;
 
+use App\Models\Ranking;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin Ranking
+ */
 class RankingResource extends JsonResource
 {
     /**
@@ -14,29 +18,20 @@ class RankingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $player = $this['player'] ?? [];
-        $playerId = data_get($player, 'id');
-
         return [
-            'id' => $this['id'],
-            'position' => $this['position'],
-            'points' => $this['rankingPoints'],
-            'date' => $this['date'],
+            'id' => $this->id,
+            'position' => $this->position,
+            'points' => $this->points,
+            'date' => $this->ranked_at->toDateString(),
 
             'player' => [
-                'id' => $playerId,
-                'name' => data_get($player, 'name'),
+                'id' => $this->player_id,
+                'name' => $this->player_name,
                 'country' => [
-                    'name' => data_get($player, 'country.name'),
-                    'code' => data_get($player, 'country.acronym'),
+                    'name' => $this->country_name,
+                    'code' => $this->country_code,
                 ],
-                'image_url' => $playerId
-                    ? sprintf(
-                        'https://%s/tennis/v2/ms-api/uploads/Photo/atp/%05d.jpg',
-                        config('services.tennis.host'),
-                        $playerId
-                    )
-                    : null,
+                'image_url' => $this->photo_url,
             ],
         ];
     }

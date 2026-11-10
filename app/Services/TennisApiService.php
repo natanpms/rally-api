@@ -12,13 +12,14 @@ class TennisApiService
     public const MAX_PAGE_SIZE = 500;
 
     /**
-     * Retorna uma página do ranking ATP de simples.
+     * Retorna uma página do ranking de simples do circuito.
      *
+     * @param  'atp'|'wta'  $tour
      * @return array{data: array<int, array<string, mixed>>, pageNo: int, pageSize: int, hasNextPage: bool}
      */
-    public function getAtpRanking(int $pageNo = 1, int $pageSize = 20): array
+    public function getRanking(string $tour, int $pageNo = 1, int $pageSize = 20): array
     {
-        return $this->get('tennis/v2/atp/ranking/singles', [
+        return $this->get("tennis/v2/{$tour}/ranking/singles", [
             'pageNo' => $pageNo,
             'pageSize' => min($pageSize, self::MAX_PAGE_SIZE),
         ]);

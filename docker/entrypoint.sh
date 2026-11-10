@@ -32,6 +32,9 @@ done
 echo "[entrypoint] PostgreSQL is ready"
 
 php artisan config:clear
-php artisan migrate --force
+
+if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
+    php artisan migrate --force
+fi
 
 exec "$@"

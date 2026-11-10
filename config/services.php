@@ -32,6 +32,9 @@ return [
         'key' => env('TENNIS_API_KEY_TENNIS'),
         'host' => env('TENNIS_API_HOST'),
     ],
+    'wikipedia' => [
+        'user_agent' => env('WIKIPEDIA_USER_AGENT'),
+    ],
 
     'slack' => [
         'notifications' => [

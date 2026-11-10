@@ -43,6 +43,25 @@ services:
         networks:
             - rally
 
+    # Roda `tennis:sync-rankings` toda terça; sem ele o ranking nunca entra no
+    # banco. As migrations ficam a cargo do container `api`.
+    scheduler:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: rally-scheduler
+        restart: unless-stopped
+        environment:
+            RUN_MIGRATIONS: 'false'
+        depends_on:
+            postgres:
+                condition: service_healthy
+        command: ['php', 'artisan', 'schedule:work']
+        volumes:
+            - .:/var/www/html
+        networks:
+            - rally
+
 volumes:
     postgres-data:
         driver: local
